@@ -59,9 +59,32 @@ var pop_result = ee.FeatureCollection('projects/melodic-bolt-514323-f2/assets/nl
 Map.addLayer(pop_result)
 print (pop_result)
 
-// Visualise result
-var empty = ee.Image().byte() // make an empty image
-var palette = ["ffb86f","e0ca3c","ba5c12","3e2f5b","261132"];
-var pop_changPergrid = empty.paint({featureCollection: pop_result,color: 'mean'});
+// Visualise population change results
+var empty = ee.Image().float();
 
-Map.addLayer(pop_changPergrid, {max: 112, palette: palette}, 'popChange_result');
+var palette = ["red","yellow","green"];
+
+var pop_changePainted = empty.paint({featureCollection: pop_result,color: 'mean'});
+
+// Check the range
+print('Minimum:', pop_result.aggregate_min('mean'));
+print('Maximum:', pop_result.aggregate_max('mean'));
+
+// Display population change
+Map.addLayer(pop_changePainted,{min: -9,max: 9,palette: palette},'Population Change Result');
+
+// Import nighttime lights results
+var nl_result = ee.FeatureCollection('projects/melodic-bolt-514323-f2/assets/nl_changePergrid');
+
+// Create an empty image
+var empty_nl = ee.Image().float();
+
+// Paint the coastal grids using mean nighttime lights change
+var nl_changePainted = empty_nl.paint({featureCollection: nl_result,color: 'mean'});
+
+// Check the range of nighttime lights change
+print('Nightlights Minimum:', nl_result.aggregate_min('mean'));
+print('Nightlights Maximum:', nl_result.aggregate_max('mean'));
+
+// Visualise nighttime lights change
+Map.addLayer(nl_changePainted,{min: -10,max: 10,palette: ['red', 'black', 'yellow']},'Nighttime Lights Change Result');
